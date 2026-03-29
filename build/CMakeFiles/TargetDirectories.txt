@@ -1,0 +1,3 @@
+D:/mingw/vscode/vscode/code/c++/c++/breakout/build/CMakeFiles/breakout.dir
+D:/mingw/vscode/vscode/code/c++/c++/breakout/build/CMakeFiles/edit_cache.dir
+D:/mingw/vscode/vscode/code/c++/c++/breakout/build/CMakeFiles/rebuild_cache.dir

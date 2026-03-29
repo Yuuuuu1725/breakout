@@ -1,0 +1,26 @@
+[
+{
+  "directory": "D:/mingw/vscode/vscode/code/c++/c++/breakout/build",
+  "command": "D:\\mingw\\vscode\\vscode\\mingw64\\bin\\g++.exe  @CMakeFiles/breakout.dir/includes_CXX.rsp -g -std=gnu++11 -o CMakeFiles\\breakout.dir\\main.cpp.obj -c D:\\mingw\\vscode\\vscode\\code\\c++\\c++\\breakout\\main.cpp",
+  "file": "D:/mingw/vscode/vscode/code/c++/c++/breakout/main.cpp",
+  "output": "CMakeFiles/breakout.dir/main.cpp.obj"
+},
+{
+  "directory": "D:/mingw/vscode/vscode/code/c++/c++/breakout/build",
+  "command": "D:\\mingw\\vscode\\vscode\\mingw64\\bin\\g++.exe  @CMakeFiles/breakout.dir/includes_CXX.rsp -g -std=gnu++11 -o CMakeFiles\\breakout.dir\\Ball.cpp.obj -c D:\\mingw\\vscode\\vscode\\code\\c++\\c++\\breakout\\Ball.cpp",
+  "file": "D:/mingw/vscode/vscode/code/c++/c++/breakout/Ball.cpp",
+  "output": "CMakeFiles/breakout.dir/Ball.cpp.obj"
+},
+{
+  "directory": "D:/mingw/vscode/vscode/code/c++/c++/breakout/build",
+  "command": "D:\\mingw\\vscode\\vscode\\mingw64\\bin\\g++.exe  @CMakeFiles/breakout.dir/includes_CXX.rsp -g -std=gnu++11 -o CMakeFiles\\breakout.dir\\Paddle.cpp.obj -c D:\\mingw\\vscode\\vscode\\code\\c++\\c++\\breakout\\Paddle.cpp",
+  "file": "D:/mingw/vscode/vscode/code/c++/c++/breakout/Paddle.cpp",
+  "output": "CMakeFiles/breakout.dir/Paddle.cpp.obj"
+},
+{
+  "directory": "D:/mingw/vscode/vscode/code/c++/c++/breakout/build",
+  "command": "D:\\mingw\\vscode\\vscode\\mingw64\\bin\\g++.exe  @CMakeFiles/breakout.dir/includes_CXX.rsp -g -std=gnu++11 -o CMakeFiles\\breakout.dir\\Brick.cpp.obj -c D:\\mingw\\vscode\\vscode\\code\\c++\\c++\\breakout\\Brick.cpp",
+  "file": "D:/mingw/vscode/vscode/code/c++/c++/breakout/Brick.cpp",
+  "output": "CMakeFiles/breakout.dir/Brick.cpp.obj"
+}
+]
