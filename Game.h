@@ -1,42 +1,111 @@
 #pragma once
 #include "raylib.h"
 #include <vector>
+#include <memory>
 
-enum GameState {
-    MENU,
-    PLAYING,
-    GAME_OVER
+class Game;
+
+enum GameState { MENU, PLAYING, GAME_OVER };
+
+enum class PowerUpType {
+    PADDLE_EXTEND,
+    MULTI_BALL,
+    SLOW_BALL
 };
 
+struct Particle {
+    Vector2 pos;
+    Vector2 vel;
+    Color color;
+    float life;
+};
+
+// 工厂模式基类
+class PowerUpEffect {
+public:
+    virtual void Apply(Game& game) = 0;
+    virtual ~PowerUpEffect() = default;
+};
+
+class ExtendPaddleEffect : public PowerUpEffect {
+public:
+    void Apply(Game& game) override;
+};
+
+class MultiBallEffect : public PowerUpEffect {
+public:
+    void Apply(Game& game) override;
+};
+
+class SlowBallEffect : public PowerUpEffect {
+public:
+    void Apply(Game& game) override;
+};
+
+// 工厂函数
+std::unique_ptr<PowerUpEffect> CreatePowerUp(PowerUpType type);
+
 class Game {
-private:
+public:
     const int screenWidth = 800;
     const int screenHeight = 600;
+    const float POWERUP_DURATION = 5.0f; // 统一5秒，符合课件
 
-    Vector2 ballPos;
-    Vector2 ballSpeed;
-    float radius;
+    struct Ball {
+        Vector2 pos;
+        Vector2 speed;
+        float radius;
+        bool active;
+    };
 
+    std::vector<Ball> balls;
     Rectangle paddle;
     float paddleSpeed;
+    float originalPaddleWidth;
 
+    struct PowerUpItem {
+        Vector2 pos;
+        PowerUpType type;
+        float speed;
+    };
+
+    std::vector<PowerUpItem> powerUps;
+    std::vector<Particle> particles;
     std::vector<std::vector<bool>> destroyed;
+
     int score;
     int lives;
     GameState currentState;
-
     int currentLevel;
     int brickRows;
-    std::vector<int> brickScores;
 
-    bool infiniteLives = false;
-    Rectangle checkBoxRect = { 250, 450, 30, 30 };
-    Rectangle backButton = { 650, 500, 120, 40 }; // 这里！
+    bool infiniteLives;
+    bool isSlowed;
 
-    void ResetGame();
-    bool CheckAllBricksDestroyed();
+    bool hasPaddleExtend;
+    bool hasMultiBall;
+    bool hasSlowBall;
+
+    float paddleExtendTimer;
+    float multiBallTimer;
+    float slowBallTimer;
+
+    Rectangle checkBoxRect;
+    Rectangle backButton;
 
 public:
     Game();
     void Run();
+    void ResetGame();
+    void ResetBall();
+    bool CheckAllBricksDestroyed();
+
+    void SpawnParticles(Vector2 pos, Color color);
+    void SpawnPowerUp(Vector2 pos);
+
+    void ExtendPaddle(float ratio);
+    void RestorePaddleSize();
+    void AddMultiBall();
+    void SlowDownBalls();
+    void RestoreBallSpeed();
 };
