@@ -1,0 +1,47 @@
+{
+    "window": {
+        "width": 1050,
+        "height": 600,
+        "title": "Zhuan2 Config"
+    },
+    "game": {
+        "initialLives": 3,
+        "scorePerBrick": 10
+    },
+    "ball": {
+        "startX": 400,
+        "startY": 500,
+        "speedX": 4,
+        "speedY": -4,
+        "radius": 8
+    },
+    "paddle": {
+        "startX": 350,
+        "startY": 550,
+        "width": 100,
+        "height": 20
+    },
+    "brick": {
+        "rows": 5,
+        "cols": 10,
+        "startX": 35,
+        "startY": 50,
+        "spacingX": 75,
+        "spacingY": 30,
+        "width": 65,
+        "height": 20,
+        "rowColors": [
+            [255, 0, 0, 255],
+            [255, 165, 0, 255],
+            [255, 255, 0, 255],
+            [0, 255, 0, 255],
+            [0, 0, 255, 255]
+        ]
+    },
+    "powerups": {
+        "dropChance": 0.3,
+        "extendDuration": 5.0,
+        "slowDuration": 5.0,
+        "slowMultiplier": 0.5
+    }
+}

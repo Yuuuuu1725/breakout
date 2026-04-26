@@ -1,111 +1,88 @@
-#pragma once
+#ifndef GAME_H
+#define GAME_H
 #include "raylib.h"
+#include "Ball.h"
+#include "Paddle.h"
+#include "Brick.h"
+#include "PowerUpEffects.h"
 #include <vector>
+#include <string>
+#include <nlohmann/json.hpp>
 #include <memory>
+#include "NetworkManager.h" 
 
-class Game;
+enum class GameState { PLAYING, GAME_OVER, WIN };
 
-enum GameState { MENU, PLAYING, GAME_OVER };
-
-enum class PowerUpType {
-    PADDLE_EXTEND,
-    MULTI_BALL,
-    SLOW_BALL
+struct PowerUp {
+    Rectangle rect;
+    PowerUpType type;
+    float speed;
+    bool active;
 };
 
 struct Particle {
-    Vector2 pos;
-    Vector2 vel;
+    Vector2 position;
+    Vector2 speed;
     Color color;
     float life;
+    float size;
 };
-
-// 工厂模式基类
-class PowerUpEffect {
-public:
-    virtual void Apply(Game& game) = 0;
-    virtual ~PowerUpEffect() = default;
-};
-
-class ExtendPaddleEffect : public PowerUpEffect {
-public:
-    void Apply(Game& game) override;
-};
-
-class MultiBallEffect : public PowerUpEffect {
-public:
-    void Apply(Game& game) override;
-};
-
-class SlowBallEffect : public PowerUpEffect {
-public:
-    void Apply(Game& game) override;
-};
-
-// 工厂函数
-std::unique_ptr<PowerUpEffect> CreatePowerUp(PowerUpType type);
 
 class Game {
-public:
-    const int screenWidth = 800;
-    const int screenHeight = 600;
-    const float POWERUP_DURATION = 5.0f; // 统一5秒，符合课件
-
-    struct Ball {
-        Vector2 pos;
-        Vector2 speed;
-        float radius;
-        bool active;
-    };
+private:
+    int screenWidth, screenHeight, score, lives;
+    GameState state;
 
     std::vector<Ball> balls;
-    Rectangle paddle;
-    float paddleSpeed;
-    float originalPaddleWidth;
+    Vector2 ballStart;
+    Vector2 ballSpeed;
+    int ballRadius;
 
-    struct PowerUpItem {
-        Vector2 pos;
-        PowerUpType type;
-        float speed;
-    };
+    Paddle paddle;
+    std::vector<Brick> bricks;
+    int scorePerBrick;
 
-    std::vector<PowerUpItem> powerUps;
+    std::vector<PowerUp> powerUps;
     std::vector<Particle> particles;
-    std::vector<std::vector<bool>> destroyed;
+    std::vector<std::unique_ptr<PowerUpEffect>> activeEffects;
 
-    int score;
-    int lives;
-    GameState currentState;
-    int currentLevel;
-    int brickRows;
+    float powerUpDropChance;
+    float extendDuration;
+    float slowDuration;
+    float slowMultiplier;
 
-    bool infiniteLives;
-    bool isSlowed;
-
-    bool hasPaddleExtend;
-    bool hasMultiBall;
-    bool hasSlowBall;
-
-    float paddleExtendTimer;
-    float multiBallTimer;
-    float slowBallTimer;
-
-    Rectangle checkBoxRect;
-    Rectangle backButton;
-
-public:
-    Game();
-    void Run();
+    void InitBricks(int rows, int cols, float startX, float startY, float spacingX, float spacingY, float w, float h, const nlohmann::json& colors);
+    void HandleInput(int paddleSpeed);
+    void UpdateBalls();
+    void CheckCollisions();
+    void HandleBallsLost();
+    void UpdatePowerUps(float dt);
+    void SpawnParticles(Vector2 pos, Color color, int count);
+    void UpdateParticles(float dt);
     void ResetGame();
-    void ResetBall();
-    bool CheckAllBricksDestroyed();
+    Paddle opponentPaddle; // 对手挡板
+    NetworkManager* network;
+    bool isNetworked = false;
+    bool isHost = false;
+    Vector2 prevBallPos, targetBallPos;
+    float interpolationTimer = 0.0f;
+    const float INTERP_DELAY = 0.05f;
+public:
+    Game(const std::string& configPath);
+    void Update();
+    void Draw() const;
+    bool ShouldClose() const;
 
-    void SpawnParticles(Vector2 pos, Color color);
-    void SpawnPowerUp(Vector2 pos);
-
-    void ExtendPaddle(float ratio);
-    void RestorePaddleSize();
-    void AddMultiBall();
-    void SlowDownBalls();
-    void RestoreBallSpeed();
+    int extendStackCount = 0;
+    float currentSpeedMult = 1.0f;
+    
+    void ExtendPaddle(float amount);
+    void ShrinkPaddle(float amount);
+    void SetBallSpeedMult(float mult);
+    void ResetBallSpeedMult();
+    void SpawnExtraBall();
+    void SetNetworkMode(NetworkManager* net, bool host) { network = net; isNetworked = true; isHost = host; }
+    void UpdateFromNetwork(const ServerStatePacket& state); // 客户端调用
 };
+
+#endif
