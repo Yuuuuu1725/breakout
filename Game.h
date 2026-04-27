@@ -1,88 +1,107 @@
-#ifndef GAME_H
-#define GAME_H
+#pragma once
 #include "raylib.h"
-#include "Ball.h"
-#include "Paddle.h"
-#include "Brick.h"
-#include "PowerUpEffects.h"
 #include <vector>
-#include <string>
-#include <nlohmann/json.hpp>
 #include <memory>
-#include "NetworkManager.h" 
 
-enum class GameState { PLAYING, GAME_OVER, WIN };
+class Game;
+enum GameState { MENU, PLAYING, GAME_OVER };
 
-struct PowerUp {
-    Rectangle rect;
-    PowerUpType type;
-    float speed;
-    bool active;
+enum class PowerUpType {
+    PADDLE_EXTEND,
+    MULTI_BALL,
+    SLOW_BALL
 };
 
 struct Particle {
-    Vector2 position;
-    Vector2 speed;
+    Vector2 pos;
+    Vector2 vel;
     Color color;
     float life;
-    float size;
 };
+
+class PowerUpEffect {
+public:
+    virtual void Apply(Game& game) = 0;
+    virtual ~PowerUpEffect() = default;
+};
+
+class ExtendPaddleEffect : public PowerUpEffect {
+public:
+    void Apply(Game& game) override;
+};
+
+class MultiBallEffect : public PowerUpEffect {
+public:
+    void Apply(Game& game) override;
+};
+
+class SlowBallEffect : public PowerUpEffect {
+public:
+    void Apply(Game& game) override;
+};
+
+std::unique_ptr<PowerUpEffect> CreatePowerUp(PowerUpType type);
 
 class Game {
-private:
-    int screenWidth, screenHeight, score, lives;
-    GameState state;
+public:
+    const int screenWidth = 800;
+    const int screenHeight = 600;
+
+    struct Ball {
+        Vector2 pos;
+        Vector2 speed;
+        float radius;
+        bool active;
+    };
 
     std::vector<Ball> balls;
-    Vector2 ballStart;
-    Vector2 ballSpeed;
-    int ballRadius;
+    Rectangle paddle;
+    float paddleSpeed;
+    float originalPaddleWidth;
+    std::vector<std::vector<bool>> destroyed;
+    int score;
+    int lives;
+    GameState currentState;
+    int currentLevel;
+    int brickRows;
+    bool infiniteLives;
+    Rectangle checkBoxRect;
+    Rectangle backButton;
 
-    Paddle paddle;
-    std::vector<Brick> bricks;
-    int scorePerBrick;
+    struct PowerUpItem {
+        Vector2 pos;
+        PowerUpType type;
+        float speed;
+    };
 
-    std::vector<PowerUp> powerUps;
+    std::vector<PowerUpItem> powerUps;
     std::vector<Particle> particles;
-    std::vector<std::unique_ptr<PowerUpEffect>> activeEffects;
+    const float POWERUP_DURATION = 10.0f;
 
-    float powerUpDropChance;
-    float extendDuration;
-    float slowDuration;
-    float slowMultiplier;
+    bool hasPaddleExtend;
+    bool hasMultiBall;
+    bool hasSlowBall;
+    float paddleExtendTimer;
+    float multiBallTimer;
+    float slowBallTimer;
+    bool isSlowed;
 
-    void InitBricks(int rows, int cols, float startX, float startY, float spacingX, float spacingY, float w, float h, const nlohmann::json& colors);
-    void HandleInput(int paddleSpeed);
-    void UpdateBalls();
-    void CheckCollisions();
-    void HandleBallsLost();
-    void UpdatePowerUps(float dt);
-    void SpawnParticles(Vector2 pos, Color color, int count);
-    void UpdateParticles(float dt);
-    void ResetGame();
-    Paddle opponentPaddle; // 对手挡板
-    NetworkManager* network;
-    bool isNetworked = false;
-    bool isHost = false;
-    Vector2 prevBallPos, targetBallPos;
-    float interpolationTimer = 0.0f;
-    const float INTERP_DELAY = 0.05f;
+    bool isLoading;
+    float loadTimer;
+    float showLoadedTimer;
+
 public:
-    Game(const std::string& configPath);
-    void Update();
-    void Draw() const;
-    bool ShouldClose() const;
-
-    int extendStackCount = 0;
-    float currentSpeedMult = 1.0f;
-    
-    void ExtendPaddle(float amount);
-    void ShrinkPaddle(float amount);
-    void SetBallSpeedMult(float mult);
-    void ResetBallSpeedMult();
-    void SpawnExtraBall();
-    void SetNetworkMode(NetworkManager* net, bool host) { network = net; isNetworked = true; isHost = host; }
-    void UpdateFromNetwork(const ServerStatePacket& state); // 客户端调用
+    Game();
+    void Run();
+    void ResetGame();
+    void ResetBall();
+    bool CheckAllBricksDestroyed();
+    void SpawnParticles(Vector2 pos, Color color);
+    void SpawnPowerUp(Vector2 pos);
+    void ExtendPaddle(float ratio);
+    void RestorePaddleSize();
+    void AddMultiBall();
+    void SlowDownBalls();
+    void RestoreBallSpeed();
+    void GenerateRandomBricks();
 };
-
-#endif
